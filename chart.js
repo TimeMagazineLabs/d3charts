@@ -1,0 +1,227 @@
+;(function(d3) {
+	if (typeof module !== "undefined") {
+		var d3 = require("d3");
+	} else {
+		d3 = window.d3;
+	}
+
+	console.log(d3);
+	var chart = function(container, opts) {
+		var axes = [];
+
+		// SETUP
+		opts = opts || {};
+		container = container || "body";
+		container = typeof container === "string" ? d3.select(container) : container;
+
+		var margin = opts.margin || {top: 20, right: 50, bottom: 30, left: 30};
+
+		var width = parseInt(container.style('width'), 10) - margin.right - margin.left,
+			height = parseInt(container.style('height'), 10) - margin.top - margin.bottom,
+			original_width = width; // for scaling + resizing
+
+		if (container.namespaceURI !== "http://www.w3.org/2000/svg") {
+			console.log("Not an SVG element. We'll make one for you.");
+			var container = container.append("svg")
+			    .attr("width", parseInt(container.style('width'), 10))
+			    .attr("height", parseInt(container.style('height'), 10));
+    	}
+
+		if (opts.title) {
+			container.append("text")
+			    .attr("x", width / 2)
+			    .attr("y", 25)
+			    .style("text-anchor", "middle")
+			    .classed("chart_title", true)
+			    .text(opts.title);
+		}
+
+		// layer for axes, already offset by margins so that 0,0 on x-y axis is the bottom left corner
+		var layer = container.append("g")
+			.classed("chart", true)
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		var axis = function(dir, opts) {
+			dir = dir.toLowerCase() || "x";
+			opts = opts || {};
+
+			// output range (domain) of axis
+			opts.domain = opts.domain || (opts.data ? d3.extent(opts.data) : [0, 1]);
+			if (typeof opts.min !== "undefined") {
+				opts.domain[0] = opts.min;	
+			}
+			if (typeof opts.max !== "undefined") {
+				opts.domain[1] = opts.max;	
+			}
+
+			var scale;
+
+			// currently supported times are time, ordinal, log, or linear (default)
+			switch(opts.type || "linear") {
+				case "time": scale = d3.time.scale(); break;
+				case "ordinal": scale = d3.scale.ordinal(); break;
+				case "log": scale = d3.scale.log(); break;
+				default: scale = d3.scale.linear(); break;
+			}
+
+			// input range
+			if (opts.type === "ordinal") {
+				if (opts.range) {
+					scale.rangeRoundBands(opts.range).domain(opts.domain);
+				} else {
+					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0]).domain(opts.domain);
+				}
+			} else {
+				if (opts.range) {
+					scale.range(opts.range).domain(opts.domain);
+				} else {					
+					scale.range(dir === "x" ? [0, width] : [height, 0]).domain(opts.domain);
+				}
+			}
+				
+			// the d3 object representing the axis
+			var ax = d3.svg.axis().scale(scale);
+
+			// the physical SVG object representing the axis
+			var axis_g = layer.append("g").attr("class", dir + " axis");
+
+			if (opts.tick_format) {
+				ax.tickFormat(opts.tick_format);
+			}
+
+			if (opts.id) {
+				axis_g.attr("id", opts.id);	
+			}
+
+			if (dir === "x") {
+				opts.orientation = opts.orientation || "bottom";
+				if (opts.orientation === "bottom") {
+					axis_g.attr("transform", "translate(0," + height + ")")
+				} else {
+					axis_g.attr("transform", "translate(0,0)")
+				}
+				ax.orient(opts.orientation);
+
+				if (opts.label) {
+					axis_g.append("text")
+					    .attr("x", width)
+					    .attr("y", opts.orientation === "top" ? -25 : 25)
+					    .style("text-anchor", "end")
+					    .classed("axis_label", true)
+					    .text(opts.label);
+				}
+			} else {
+				opts.orientation = opts.orientation || "left";
+				if (opts.orientation === "left") {
+					axis_g.attr("transform", "translate(0,0)")
+				} else {
+					axis_g.attr("transform", "translate(0," + width + ")")
+				}
+				ax.orient(opts.orientation);
+
+				if (opts.label) {
+					axis_g.append("text")
+					    .attr("transform", "rotate(-90)")
+					    .attr("x", opts.label_offset || 0)
+					    .attr("y", 5)
+					    .attr("dy", ".71em")
+					    .style("text-anchor", "end")
+					    .attr("class", "axis_label")
+					    .text(opts.label);
+				}
+			}
+			axis_g.call(ax);
+
+			var update = function(dur) {
+				dur ? axis_g.transition(dur).call(ax) : axis_g.call(ax);
+			};
+
+			var resize_axis = function (z) {
+				if (opts.type === "ordinal") {
+					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0]);
+				} else {
+					scale.range(dir === "x" ? [0, width] : [height, 0]);
+				}
+				if (opts.resize) {
+					opts.resize(scale, axis, width, height, z);
+				}
+				if (opts.orientation == "bottom") {
+					ax.attr("transform", "translate(0," + height + ")");
+				} else if (opts.orientation == "right") {
+					ax.attr("transform", "translate(" + width + ",0)");
+				}
+				update();			
+			}
+
+			// we'll return this object (and store it in the chart object)
+			var obj = {
+				scale: scale,
+				axis: ax,
+				update: update,
+				resize: resize_axis
+			};
+
+			axes.push(obj);
+			return obj;
+		}
+
+		// anything on this sublayer will scale down with a change in screen size
+		// the axes should NOT be scaled if that chart resizes. It's much better to resize them directly to allow for the ticks to recalculate
+		// thus, the axes belong to "layer", not "resize_layer"
+		var resize_layer = layer.append("g").classed("resizable", true);
+
+		function resize_chart() {
+			var w = parseInt(container.style('width'), 10) - margin.right - margin.left,
+				h = parseInt(container.style('height'), 10) - margin.top - margin.bottom,
+				z = w / original_width;
+
+			width = w;
+			height = h;
+
+			resize_layer.attr("transform", "scale(" + z + ",1)");
+
+			axes.forEach(function(obj) {
+				obj.resize(z);
+			});
+
+			if (opts.resize) {
+				opts.resize(w, h, z);
+			}
+
+		}
+		
+		return {
+			axis_layer: layer,
+			resize_layer: resize_layer,
+			height: height,
+			width: width,
+			setResize: function(rf) {
+				opts.resize = rf;
+			},
+			addAxis: axis
+		}
+	}
+
+	// make this compatible with browserify without requiring it
+	if (typeof module !== "undefined") {
+		module.exports = chart;
+	} else {
+		window.d3chart = chart;
+	}
+
+	// http://stackoverflow.com/questions/3339825/what-is-the-best-practise-to-not-to-override-other-bound-functions-to-window-onr
+	function addResizeEvent(func) {
+		var resizeTimer,
+	    	oldResize = window.onresize;
+	    window.onresize = function () {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(function() {
+				func();
+		        if (typeof oldResize === 'function') {
+		            oldResize();
+		        }
+			}, 100);
+	    };
+	}
+
+}());

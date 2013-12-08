@@ -1,0 +1,19 @@
+{
+    "name": "chart",
+    "version": "0.0.1",
+    "description": "Wrapper for D3 charts",
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/TimeMagazine/d3charts.git"
+    },
+    "dependencies": {
+        "browserify": ">= 2.0.0"
+    },
+    "author": {
+        "name" : "Chris Wilson",
+        "email" : "wilson@mechanicalscribe.com",
+        "url" : "http://mechanicalscribe.com"
+    },
+    "scripts" : {}
+}
