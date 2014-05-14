@@ -15,5 +15,8 @@
         "email" : "wilson@mechanicalscribe.com",
         "url" : "http://mechanicalscribe.com"
     },
+    "browserify": {
+        "transform": ["node-lessify"]
+    },
     "scripts" : {}
 }

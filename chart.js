@@ -1,11 +1,11 @@
 ;(function(d3) {
+	// allow for use in Node/browserify or not
 	if (typeof module !== "undefined") {
 		var d3 = require("d3");
 	} else {
 		d3 = window.d3;
 	}
 
-	console.log(d3);
 	var chart = function(container, opts) {
 		var axes = [];
 
@@ -18,14 +18,16 @@
 
 		var width = parseInt(container.style('width'), 10) - margin.right - margin.left,
 			height = parseInt(container.style('height'), 10) - margin.top - margin.bottom,
-			original_width = width; // for scaling + resizing
-
+			original_width = width, // for scaling + resizing
+			backdrop;
+		/*
 		if (container.namespaceURI !== "http://www.w3.org/2000/svg") {
 			console.log("Not an SVG element. We'll make one for you.");
 			var container = container.append("svg")
 			    .attr("width", parseInt(container.style('width'), 10))
 			    .attr("height", parseInt(container.style('height'), 10));
     	}
+    	*/
 
 		if (opts.title) {
 			container.append("text")
@@ -67,9 +69,10 @@
 			// input range
 			if (opts.type === "ordinal") {
 				if (opts.range) {
-					scale.rangeRoundBands(opts.range).domain(opts.domain);
+					//scale.rangeRoundBands(opts.range).domain(opts.domain);
+					scale.rangePoints(opts.range).domain(opts.domain);
 				} else {
-					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0]).domain(opts.domain);
+					scale.rangePoints(dir === "x" ? [0, width] : [height, 0]).domain(opts.domain);
 				}
 			} else {
 				if (opts.range) {
@@ -103,7 +106,7 @@
 				ax.orient(opts.orientation);
 
 				if (opts.label) {
-					axis_g.append("text")
+					var label = axis_g.append("text")
 					    .attr("x", width)
 					    .attr("y", opts.orientation === "top" ? -25 : 25)
 					    .style("text-anchor", "end")
@@ -120,7 +123,7 @@
 				ax.orient(opts.orientation);
 
 				if (opts.label) {
-					axis_g.append("text")
+					var label = axis_g.append("text")
 					    .attr("transform", "rotate(-90)")
 					    .attr("x", opts.label_offset || 0)
 					    .attr("y", 5)
@@ -133,22 +136,26 @@
 			axis_g.call(ax);
 
 			var update = function(dur) {
-				dur ? axis_g.transition(dur).call(ax) : axis_g.call(ax);
+				dur ? axis_g.transition().duration(dur).call(ax) : axis_g.call(ax);
 			};
 
-			var resize_axis = function (z) {
+			var resize_axis = function (w, h, z) {
 				if (opts.type === "ordinal") {
-					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0]);
+					scale
+						//.rangeRoundBands(dir === "x" ? [0, width] : [height, 0])
+						.rangePoints(dir === "x" ? [0, w] : [h, 0]);
 				} else {
 					scale.range(dir === "x" ? [0, width] : [height, 0]);
 				}
+
 				if (opts.resize) {
-					opts.resize(scale, axis, width, height, z);
+					opts.resize(scale, axis_g, width, height, z);
 				}
+
 				if (opts.orientation == "bottom") {
-					ax.attr("transform", "translate(0," + height + ")");
+					axis_g.attr("transform", "translate(0," + height + ")");
 				} else if (opts.orientation == "right") {
-					ax.attr("transform", "translate(" + width + ",0)");
+					axis_g.attr("transform", "translate(" + width + ",0)");
 				}
 				update();			
 			}
@@ -158,7 +165,8 @@
 				scale: scale,
 				axis: ax,
 				update: update,
-				resize: resize_axis
+				resize: resize_axis,
+				label: label
 			};
 
 			axes.push(obj);
@@ -168,7 +176,8 @@
 		// anything on this sublayer will scale down with a change in screen size
 		// the axes should NOT be scaled if that chart resizes. It's much better to resize them directly to allow for the ticks to recalculate
 		// thus, the axes belong to "layer", not "resize_layer"
-		var resize_layer = layer.append("g").classed("resizable", true);
+		var resize_layer = container.append("g").classed("resizable", true).attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
 
 		function resize_chart() {
 			var w = parseInt(container.style('width'), 10) - margin.right - margin.left,
@@ -178,17 +187,47 @@
 			width = w;
 			height = h;
 
-			resize_layer.attr("transform", "scale(" + z + ",1)");
+			//resize_layer.attr("transform", "scale(" + z + ",1)");
 
 			axes.forEach(function(obj) {
-				obj.resize(z);
+				obj.resize(w, h, z);
 			});
 
 			if (opts.resize) {
 				opts.resize(w, h, z);
 			}
 
+			if (backdrop) {
+				drawBackdrop(backdrop[0]);
+			}
 		}
+
+		function drawBackdrop(type) {
+			backdrop = [type];
+			//container.select(".backdrop").remove();
+
+			if (type == "full" || type == "large") {
+				container.selectAll(".backdrop").data(backdrop).enter().insert("rect", ":first-child").attr("class", "backdrop");
+			} else {
+				layer.selectAll(".backdrop").data(backdrop).enter().insert("rect", ":first-child").attr("class", "backdrop");				
+			}
+
+			if (type == "full" || type == "large") {
+				container.selectAll(".backdrop")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", parseInt(container.style('width'), 10))
+					.attr("height", parseInt(container.style('height'), 10));
+			} else {
+				layer.selectAll(".backdrop")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", width)
+					.attr("height", height);				
+			}
+		}
+
+		addResizeEvent(resize_chart, 250);
 		
 		return {
 			axis_layer: layer,
@@ -198,7 +237,8 @@
 			setResize: function(rf) {
 				opts.resize = rf;
 			},
-			addAxis: axis
+			addAxis: axis,
+			backdrop: drawBackdrop
 		}
 	}
 
@@ -210,17 +250,19 @@
 	}
 
 	// http://stackoverflow.com/questions/3339825/what-is-the-best-practise-to-not-to-override-other-bound-functions-to-window-onr
-	function addResizeEvent(func) {
+	function addResizeEvent(func, dur) {
 		var resizeTimer,
 	    	oldResize = window.onresize;
+	    	
 	    window.onresize = function () {
 			clearTimeout(resizeTimer);
+	        if (typeof oldResize === 'function') {
+	            oldResize();
+	        }
+
 			resizeTimer = setTimeout(function() {
 				func();
-		        if (typeof oldResize === 'function') {
-		            oldResize();
-		        }
-			}, 100);
+			}, dur || 250);
 	    };
 	}
 

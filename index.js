@@ -1,2 +1,3 @@
 var d3 = require('d3');
-module.exports.chart = require("./chart.js");
+require("./styles.less");
+module.exports = require("./chart.js");
