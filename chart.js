@@ -16,18 +16,10 @@
 
 		var margin = opts.margin || {top: 20, right: 50, bottom: 30, left: 30};
 
-		var width = parseInt(container.style('width'), 10) - margin.right - margin.left,
-			height = parseInt(container.style('height'), 10) - margin.top - margin.bottom,
+		var width = opts.width || parseInt(container.style('width'), 10) - margin.right - margin.left,
+			height = opts.height || parseInt(container.style('height'), 10) - margin.top - margin.bottom,
 			original_width = width, // for scaling + resizing
 			backdrop;
-		/*
-		if (container.namespaceURI !== "http://www.w3.org/2000/svg") {
-			console.log("Not an SVG element. We'll make one for you.");
-			var container = container.append("svg")
-			    .attr("width", parseInt(container.style('width'), 10))
-			    .attr("height", parseInt(container.style('height'), 10));
-    	}
-    	*/
 
 		if (opts.title) {
 			container.append("text")
@@ -96,36 +88,46 @@
 				axis_g.attr("id", opts.id);	
 			}
 
+			opts.translation = [0, 0];
+
 			if (dir === "x") {
 				opts.orientation = opts.orientation || "bottom";
-				if (opts.orientation === "bottom") {
-					axis_g.attr("transform", "translate(0," + height + ")")
-				} else {
-					axis_g.attr("transform", "translate(0,0)")
+
+				if (!opts.intersection) {
+					opts.intersection = function() {
+						return opts.orientation === "bottom" ? height : 0;
+					}
 				}
-				ax.orient(opts.orientation);
+
+				opts.translate = function() {
+					axis_g.select(".domain").attr("transform", "translate(0," + opts.intersection() + ")");
+				}				
 
 				if (opts.label) {
 					var label = axis_g.append("text")
 					    .attr("x", width)
-					    .attr("y", opts.orientation === "top" ? -25 : 25)
+					    .attr("y", opts.label_offset ? opts.label_offset : (opts.orientation === "top" ? -25 : 25))
 					    .style("text-anchor", "end")
 					    .classed("axis_label", true)
 					    .text(opts.label);
 				}
 			} else {
 				opts.orientation = opts.orientation || "left";
-				if (opts.orientation === "left") {
-					axis_g.attr("transform", "translate(0,0)")
-				} else {
-					axis_g.attr("transform", "translate(0," + width + ")")
+
+				if (!opts.intersection) {
+					opts.intersection = function() {
+						return opts.orientation === "left" ? 0 : width;
+					}
 				}
-				ax.orient(opts.orientation);
+
+				opts.translate = function() {
+					axis_g.attr("transform", "translate(" + opts.intersection() + ", 0)");
+				}	
 
 				if (opts.label) {
 					var label = axis_g.append("text")
-					    .attr("transform", "rotate(-90)")
-					    .attr("x", opts.label_offset || 0)
+					    .attr("transform", "translate(" + (opts.label_offset || 0) + ",0)rotate(-90)")
+					    .attr("x", 0)
 					    .attr("y", 5)
 					    .attr("dy", ".71em")
 					    .style("text-anchor", "end")
@@ -133,6 +135,11 @@
 					    .text(opts.label);
 				}
 			}
+
+			opts.translate();
+
+			ax.orient(opts.orientation);
+
 			axis_g.call(ax);
 
 			var update = function(dur) {
@@ -152,11 +159,8 @@
 					opts.resize(scale, axis_g, width, height, z);
 				}
 
-				if (opts.orientation == "bottom") {
-					axis_g.attr("transform", "translate(0," + height + ")");
-				} else if (opts.orientation == "right") {
-					axis_g.attr("transform", "translate(" + width + ",0)");
-				}
+				opts.translate();
+
 				update();			
 			}
 
