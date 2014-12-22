@@ -8,7 +8,9 @@
         "url": "https://github.com/TimeMagazine/d3charts.git"
     },
     "dependencies": {
-        "browserify": ">= 2.0.0"
+        "browserify": ">= 2.0.0",
+        "d3": ">= 3.0.0",
+        "node-lessify": ">=0.0.6"
     },
     "author": {
         "name" : "Chris Wilson",
