@@ -1,17 +1,17 @@
 ;(function() {
 	var d3 = require("d3");
-	var base = require("d3-base");
+	var base = require("elastic-svg");
 
 	require("./styles.less");
 
-	module.exports = function(container, opts) {
+	module.exports = function(selector, opts) {
 		opts = opts || {};
 
 		// SETUP		
 		var margin = opts.margin || {top: 20, right: 50, bottom: 30, left: 30};
 
-		var b = base(container, opts),
-			container = b.svg;
+		var b = base(selector, opts),
+			container = d3.select(b.svg);
 
 		var axes = [];
 

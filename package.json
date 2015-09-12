@@ -1,24 +1,27 @@
 {
-    "name": "chart",
-    "version": "0.0.1",
-    "description": "Wrapper for D3 charts",
-    "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/TimeMagazine/d3charts.git"
-    },
-    "dependencies": {
-        "browserify": ">= 2.0.0",
-        "d3": ">= 3.0.0",
-        "node-lessify": ">=0.0.6"
-    },
-    "author": {
-        "name" : "Chris Wilson",
-        "email" : "wilson@mechanicalscribe.com",
-        "url" : "http://mechanicalscribe.com"
-    },
-    "browserify": {
-        "transform": ["node-lessify"]
-    },
-    "scripts" : {}
+  "name": "d3charts",
+  "version": "0.0.2",
+  "description": "Wrapper for D3 charts",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TimeMagazine/d3charts.git"
+  },
+  "dependencies": {
+    "browserify": "^11.1.0",
+    "d3": "^3.5.6",
+    "elastic-svg": "0.0.3",
+    "node-lessify": ">=0.0.10"
+  },
+  "author": {
+    "name": "Chris Wilson",
+    "email": "wilson@mechanicalscribe.com",
+    "url": "http://mechanicalscribe.com"
+  },
+  "browserify": {
+    "transform": [
+      "node-lessify"
+    ]
+  },
+  "scripts": {}
 }
