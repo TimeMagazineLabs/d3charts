@@ -157,13 +157,12 @@
 					scale.range(dir === "x" ? [0, width] : [height, 0]);
 				}
 
+				opts.translate();
+				update();		
+
 				if (opts.resize) {
 					opts.resize(scale, axis_g, width, height, z);
-				}
-
-				opts.translate();
-
-				update();			
+				}					
 			}
 
 			// we'll return this object (and store it in the chart object)
@@ -200,6 +199,16 @@
 
 		addResizeEvent(resize_chart, 250);
 
+		function changeAspect(aspect) {
+			b.changeAspect(aspect);			
+		}
+
+		function changeHeight(height) {
+			b.changeHeight(height);
+			console.log(b.height);
+			height = b.height - margin.top - margin.bottom;
+		}
+
 		var chart = {
 			axes_layer: axes_layer,
 			data_layer: data_layer,
@@ -208,7 +217,10 @@
 			setResize: function(rf) {
 				opts.resize = rf;
 			},
-			addAxis: axis
+			resize: resize_chart,
+			addAxis: axis,
+			changeAspect: changeAspect,
+			changeHeight: changeHeight
 		};
 		return chart;
 	}
