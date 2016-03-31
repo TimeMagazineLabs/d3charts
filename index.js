@@ -15,6 +15,7 @@
 
 		var axes = [];
 
+		// width and height are the dimensions of the graph WITHOUT the margins
 		var width =  b.width - margin.left - margin.right,
 			height = b.height - margin.top - margin.bottom,
 			original_width = width; // for scaling + resizing
@@ -167,6 +168,7 @@
 
 			// we'll return this object (and store it in the chart object)
 			var obj = {
+				domain: scale.domain,
 				scale: scale,
 				axis: ax,
 				update: update,
@@ -186,8 +188,6 @@
 			chart.width = width = w;
 			chart.height = height = h;
 
-			//data_layer.attr("transform", "scale(" + z + ",1)");
-
 			axes.forEach(function(obj) {
 				obj.resize(w, h, z);
 			});
@@ -203,10 +203,13 @@
 			b.changeAspect(aspect);			
 		}
 
-		function changeHeight(height) {
-			b.changeHeight(height);
-			console.log(b.height);
-			height = b.height - margin.top - margin.bottom;
+		function changeHeight(h) {
+			b.changeHeight(h + margin.top + margin.bottom);
+			chart.height = height = h;
+
+			axes.forEach(function(axis) {
+				axis.resize(width, height);
+			});	
 		}
 
 		var chart = {
