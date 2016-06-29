@@ -197,7 +197,7 @@
 			}
 		}
 
-		addResizeEvent(resize_chart, 250);
+		addResizeEvent(resize_chart, 50);
 
 		function changeAspect(aspect) {
 			b.changeAspect(aspect);			
