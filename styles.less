@@ -1,51 +1,24 @@
-.time-interactive {
+.d3chart {
 	/* charts */
+
+	background-color: #EEE;
+
 	.axis path, .axis line {
 	    fill: none;
-	    stroke: #1a1a1a;
+	    stroke: white;
 	    shape-rendering: crispEdges;
 	}
 
 	.axis text {
-	    font-size: 10px;
+	    font-size: 13px;
 		font-family: "franklin-gothic-urw", Helvetica, Arial, sans-serif;
 	}
 
-	/* for filled charts */
-	.area {
-	    stroke-width: 1.5px;
-	    stroke: #999;
-	    fill-opacity: .25;
-	}	
-
-
-
-	.legend {
-		margin: 5px auto;
-
-		.legend-title {
-			font-size: 14px;
-			margin-bottom: 5px;
-		}
-
-		ul {
-			padding: 0;
-			margin: 0;
-			list-style: none;
-			li {
-				display: inline-block;
-				font-family: Arial;
-				font-size: 11px;
-				padding: 2px 0;
-				text-align: center;
-			}
-		}
+	.axis .domain {
+		stroke-width: 0;
 	}
 
-	@media (max-width: 500px) {
-		.legend ul li {
-			font-size: 9px;
-			padding: 1px 0;
-		}
+	.chart_title {
+		padding: 15px 0 5px 0;
 	}
 }

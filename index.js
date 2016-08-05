@@ -5,10 +5,20 @@
 	require("./styles.less");
 
 	module.exports = function(selector, opts) {
+		d3.select(selector).classed("d3chart", true);
+
+		if (opts.title) {
+			d3.select(selector)
+				.append("div")
+			    .style("text-align", "center")
+			    .classed("chart_title", true)
+			    .html(opts.title);
+		}
+
 		opts = opts || {};
 
 		// SETUP		
-		var margin = opts.margin || {top: 20, right: 50, bottom: 30, left: 30};
+		var margin = opts.margin || {top: 0, right: 30, bottom: 50, left: 50};
 
 		var b = base(selector, opts),
 			container = d3.select(b.svg);
@@ -19,15 +29,6 @@
 		var width =  b.width - margin.left - margin.right,
 			height = b.height - margin.top - margin.bottom,
 			original_width = width; // for scaling + resizing
-
-		if (opts.title) {
-			container.append("text")
-			    .attr("x", width / 2)
-			    .attr("y", 25)
-			    .style("text-anchor", "middle")
-			    .classed("chart_title", true)
-			    .text(opts.title);
-		}
 
 		// layer for axes, already offset by margins so that 0,0 on x-y axis is the bottom left corner
 		var axes_layer = container.append("g")
@@ -106,13 +107,15 @@
 					axis_g.attr("transform", "translate(0," + height + ")");
 				}
 
+				ax.tickSize(0, 0);
+
 				if (opts.label) {
 					var label = axis_g.append("text")
 					    .attr("x", width / 2)
 					    .attr("y", opts.label_offset ? opts.label_offset : (opts.orientation === "top" ? -30 : 30))
 					    .style("text-anchor", "middle")
 					    .classed("axis_label", true)
-					    .text(opts.label);
+					    .html(opts.label);
 				}
 			} else {
 				opts.orientation = opts.orientation || "left";
@@ -125,15 +128,17 @@
 
 				opts.translate = function() {
 					axis_g.attr("transform", "translate(" + opts.intersection() + ", 0)");
-				}	
+				}
+
+				ax.tickSize(-width, 0);				
 
 				if (opts.label) {
 					var label = axis_g.append("text")
-					    .attr("transform", "translate(" + (opts.label_offset || 0) + ",0)rotate(-90)")
+					    .attr("transform", "translate(0," + (opts.label_offset || height / 2) + ")rotate(-90)")
 					    .attr("x", 0)
-					    .attr("y", 5)
-					    .attr("dy", ".71em")
-					    .style("text-anchor", "end")
+					    .attr("y", -30)
+					    //.attr("dy", ".71em")
+					    .style("text-anchor", "middle")
 					    .attr("class", "axis_label")
 					    .text(opts.label);
 				}
