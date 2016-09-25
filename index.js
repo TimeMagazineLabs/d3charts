@@ -1,6 +1,6 @@
 ;(function() {
 	var d3 = require("d3");
-	var base = require("elastic-svg");
+	var base = require("../elastic-svg");
 
 	require("./styles.less");
 
@@ -18,7 +18,9 @@
 		opts = opts || {};
 
 		// SETUP		
-		var margin = opts.margin || {top: 0, right: 30, bottom: 50, left: 50};
+		var margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
+
+		opts.onResize = resize_chart;
 
 		var b = base(selector, opts),
 			container = d3.select(b.svg);
@@ -202,8 +204,6 @@
 			}
 		}
 
-		addResizeEvent(resize_chart, 50);
-
 		function changeAspect(aspect) {
 			b.changeAspect(aspect);			
 		}
@@ -232,22 +232,4 @@
 		};
 		return chart;
 	}
-
-	// http://stackoverflow.com/questions/3339825/what-is-the-best-practise-to-not-to-override-other-bound-functions-to-window-onr
-	function addResizeEvent(func, dur) {
-		var resizeTimer,
-	    	oldResize = window.onresize;
-	    	
-	    window.onresize = function () {
-			clearTimeout(resizeTimer);
-	        if (typeof oldResize === 'function') {
-	            oldResize();
-	        }
-
-			resizeTimer = setTimeout(function() {
-				func();
-			}, dur || 250);
-	    };
-	}
-
 }());

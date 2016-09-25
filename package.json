@@ -1,6 +1,6 @@
 {
   "name": "d3charts",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Wrapper for D3 charts",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,7 @@
   "dependencies": {
     "browserify": "^13.0.0",
     "d3": "3.5.17",
-    "elastic-svg": "0.0.4",
+    "elastic-svg": "0.0.5",
     "node-lessify": ">=0.0.10"
   },
   "author": {
