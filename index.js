@@ -1,6 +1,6 @@
 ;(function() {
 	var d3 = require("d3");
-	var base = require("../elastic-svg");
+	var base = require("elastic-svg");
 
 	require("./styles.less");
 
