@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+
+		#line_chart {
+			max-width: 800px;
+		}
+
+		.line { fill: none; stroke: #C00; stroke-width: 2px; }
+
+		</style>
+	</head>
+	<body>
+
+	<div id="line_chart"></div>
+		
+	<!-- load the d3.js library -->    	
+	<script src="http://d3js.org/d3.v4.min.js"></script>
+	<script src="../d3charts.js"></script>
+	<script> 
+// let's make a random walk
+
+var data = [];
+var y = 50;
+var previous = 0.5;
+
+for (var c = 0; c <= 100; c += 1) {
+	var updown = Math.round(10 * Math.random()) - 5;
+	y = y+updown;
+	data.push({
+		x: c,
+		y: y
+	});
+}
+
+var chart = d3charts("#line_chart", {
+    margin: { top: 35, right: 20, bottom: 20, left: 35 },
+    aspect: 0.75,
+    resize: function() {
+        update_chart()
+    }
+});
+
+var x = chart.addAxis("x", {
+	domain: [0, 100],
+	rules: true
+});
+
+var y = chart.addAxis("y", {
+	domain: d3.extent(data, function(d) { return d.y; }),
+	tickLength: 20
+});
+
+var line = d3.line()
+	.curve(d3.curveStepAfter)
+    .x(function(d) { return x.scale(d.x); })
+    .y(function(d) { return y.scale(d.y); });
+
+var random_walk = chart.data_layer.append("path")
+    .attr("d", function() {
+        return line(data);
+    })
+    .attr("class", "line");
+
+function update_chart() {
+	random_walk
+		.attr("d", function() {
+	        return line(data);
+	    });
+}
+
+
+
+	</script>
+	</body>
+</html>

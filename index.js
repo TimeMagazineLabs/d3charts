@@ -1,10 +1,10 @@
 ;(function() {
-	var d3 = require("d3");
+	var d3 = Object.assign({}, require("d3-selection"), require("d3-scale"), require("d3-axis"));
 	var base = require("elastic-svg");
 
-	require("./d3charts.less");
+	require("./styles.less");
 
-	module.exports = function(selector, opts) {
+	var d3charts = function(selector, opts) {
 		d3.select(selector).classed("d3chart", true);
 
 		// add the title as a DOM element rather than messing with <text>
@@ -24,7 +24,7 @@
 		var b = base(selector, opts),
 			svg = d3.select(b.svg);
 
-		var axes = [];
+		var axes = {};
 
 		// width and height are the dimensions of the graph NOT including the margins 
 		var width =  b.width - margin.left - margin.right,
@@ -98,14 +98,14 @@
 				// currently supported times are time, ordinal, log, or linear (default)
 				switch(axis_opts.type.toLowerCase()) {
 					case "time": scale = d3.scaleTime(); break;
-					case "ordinal": scale = d3.scaleOrdinal(); break;
+					case "ordinal": scale = d3.scaleBand().padding(0.1); break;
 					case "log": scale = d3.scaleLog(); break;
 					case "linear": scale = d3.scaleLinear(); break;
 					default: scale = d3.scaleLinear(); break;
 				}
 
 				// input range
-				if (axis_opts.type === "ordinal") {
+				if (axis_opts.type === "ordinal2") {
 					scale.rangeRoundBands(axis_opts.range, .5).domain(axis_opts.domain);
 				} else {
 					scale.range(axis_opts.range).domain(axis_opts.domain);
@@ -128,8 +128,8 @@
 
 				axis_g = axes_layer.append("g").attr("class", dir + " axis");
 
-				if (axis_opts.tick_format) {
-					ax.tickFormat(axis_opts.tick_format);
+				if (axis_opts.tickFormat) {
+					ax.tickFormat(axis_opts.tickFormat);
 				}
 
 				if (axis_opts.id) {
@@ -168,7 +168,7 @@
 			var draw_axis = function (w, h, z) {
 				axis_opts.range = dir === "x" ? [0, w] : [h, 0];
 
-				if (axis_opts.type === "ordinal") {
+				if (axis_opts.type === "ordinal2") {
 					scale.rangeRoundBands(axis_opts.range, .5).domain(axis_opts.domain);
 				} else {
 					scale.range(axis_opts.range).domain(axis_opts.domain);
@@ -176,6 +176,14 @@
 
 				if (dir == "x" && axis_opts.orientation == "bottom") {
 					axis_g.attr("transform", "translate(0," + h + ")");
+					/*
+					if (axis_opts.hasOwnProperty("intercept") && axes.y) {
+						console.log(axes.y.scale(axis_opts.intercept)), h;
+						axis_g.attr("transform", "translate(0," + axes.y.scale(axis_opts.intercept) + ")");
+					} else if (axis_opts.orientation == "bottom") {
+						axis_g.attr("transform", "translate(0," + h + ")");
+					}
+					*/
 				} else if (dir == "y" && axis_opts.orientation == "right") {
 					axis_g.attr("transform", "translate(" + w + ",0)");
 				}
@@ -209,6 +217,7 @@
 
 			// we'll return this object (and store it in the chart object)
 			var obj = {
+				dir: dir,
 				domain: scale.domain,
 				scale: scale,
 				axis: ax,
@@ -216,7 +225,7 @@
 				redraw: draw_axis
 			};
 
-			axes.push(obj);
+			axes[dir] = obj;
 			return obj;
 		}
 
@@ -228,8 +237,8 @@
 			chart.width = width = w;
 			chart.height = height = h;
 
-			axes.forEach(function(obj) {
-				obj.redraw(w, h, z);
+			Object.keys(axes).forEach(function(dir) {
+				axes[dir].redraw(w, h, z);
 			});
 
 			if (opts.resize) {
@@ -257,6 +266,7 @@
 			width: width,
 			setResize: function(rf) {
 				opts.resize = rf;
+				rf();
 			},
 			resize: resize_chart,
 			addAxis: axis,
@@ -265,4 +275,7 @@
 		};
 		return chart;
 	}
+
+    module.exports = d3charts;
+
 }());
