@@ -1,9 +1,9 @@
-d3charts
+D3 Chart Helper
 ========
 
-Convenience functions for spinning up D3-powered charts
+Convenience functions for spinning up D3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
 
-## Usage
+# Demo
 
 	var d3charts = require("d3charts");
 

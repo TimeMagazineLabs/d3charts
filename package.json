@@ -1,17 +1,17 @@
 {
   "name": "d3charts",
-  "version": "0.0.5",
-  "description": "Wrapper for D3 charts",
+  "version": "0.0.6",
+  "description": "Wrapper for D3 charts, now d3.v4 compliant",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/TimeMagazine/d3charts.git"
   },
   "dependencies": {
-    "browserify": "^13.0.0",
-    "d3": "3.5.17",
-    "elastic-svg": "0.0.5",
-    "node-lessify": ">=0.0.10"
+    "browserify": "^13.1.1",
+    "d3": "^4.4.0",
+    "elastic-svg": "^0.0.5",
+    "node-lessify": "^0.1.4"
   },
   "author": {
     "name": "Chris Wilson",

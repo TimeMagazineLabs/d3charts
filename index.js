@@ -2,11 +2,12 @@
 	var d3 = require("d3");
 	var base = require("elastic-svg");
 
-	require("./styles.less");
+	require("./d3charts.less");
 
 	module.exports = function(selector, opts) {
 		d3.select(selector).classed("d3chart", true);
 
+		// add the title as a DOM element rather than messing with <text>
 		if (opts.title) {
 			d3.select(selector)
 				.append("div")
@@ -20,167 +21,199 @@
 		// SETUP		
 		var margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
 
-		opts.onResize = resize_chart;
-
 		var b = base(selector, opts),
-			container = d3.select(b.svg);
+			svg = d3.select(b.svg);
 
 		var axes = [];
 
-		// width and height are the dimensions of the graph WITHOUT the margins
+		// width and height are the dimensions of the graph NOT including the margins 
 		var width =  b.width - margin.left - margin.right,
 			height = b.height - margin.top - margin.bottom,
-			original_width = width; // for scaling + resizing
+			original_width = width; // the starting width, used for scaling
 
-		// layer for axes, already offset by margins so that 0,0 on x-y axis is the bottom left corner
-		var axes_layer = container.append("g")
+		// layer for axes and anything else we want behind the dataviz
+		var axes_layer = svg.append("g")
 			.classed("axes", true)
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-		// layer for bars, lines, dots, etc.
-		var data_layer = container.append("g")
+		// layer for dataviz: bars, lines, dots, etc.
+		var data_layer = svg.append("g")
 			.classed("data", true)
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-		var axis = function(dir, opts) {
-			dir = dir.toLowerCase() || "x";
-			opts = opts || {};
 
-			// output range (domain) of axis
-			opts.domain = opts.domain || (opts.data ? d3.extent(opts.data) : [0, 1]);
+		// any function that is passed to opts.resize will invoke in the following generic resize function
+		opts.onResize = resize_chart;
 
-			if (typeof opts.min !== "undefined") {
-				opts.domain[0] = opts.min;	
-			}
-			if (typeof opts.max !== "undefined") {
-				opts.domain[1] = opts.max;	
-			}
 
-			var scale;
+		// AXES
 
-			// currently supported times are time, ordinal, log, or linear (default)
-			switch(opts.type || "linear") {
-				case "time": scale = d3.time.scale(); break;
-				case "ordinal": scale = d3.scale.ordinal(); break;
-				case "log": scale = d3.scale.log(); break;
-				default: scale = d3.scale.linear(); break;
+		// this pseudo-class contains both the scale and the physical axis
+		/*
+		@dir: "x" or "y" (for now)
+		@opts: options for the axis: type, domain (or min and max), orientation, ticklength, id, rules (T/F for chart-wide ticks)
+		*/
+
+		var axis = function(dir, axis_opts) {
+			if (!typeof dir === "string" || dir.toLowerCase() != "x" && dir.toLowerCase() != "y") {
+				console.log("the d3charts axis() function must start with a string, either 'x' or 'y'");
+				returnl
 			}
 
-			// input range
-			if (opts.type === "ordinal") {
-			    //x.scale.rangeRoundBands([0, width - margin.right - margin.left], .5);
+			var scale, 	// the typical d3 scale object, eg. d3.scaleTime()
+				ax, 	// the d3 object representing the axis
+				axis_g; // the physical SVG object representing the axis
 
-				if (opts.range) {
-					//scale.rangeRoundBands(opts.range).domain(opts.domain);
-					scale.rangePoints(opts.range).domain(opts.domain);
-					//scale.rangeRoundBands([0, width - margin.right - margin.left], .5);
+			// this is only invoked once, since it only assembles the DOM. See "Philosophy" section of the README
+			function build_axis() {
+				dir = dir.toLowerCase();
+				axis_opts = axis_opts || {};
+
+				// FILL IN OPTIONS
+
+				// range (pixels the axis will span)
+				axis_opts.range = axis_opts.range || (dir === "x" ? [0, width] : [height, 0]);
+
+				// output range (domain) of axis
+				axis_opts.domain = axis_opts.domain || [0, 1];
+
+				if (typeof axis_opts.min !== "undefined") {
+					axis_opts.domain[0] = axis_opts.min;	
+				}
+
+				if (typeof axis_opts.max !== "undefined") {
+					axis_opts.domain[1] = axis_opts.max;	
+				}
+
+				axis_opts.type = axis_opts.type || "linear";
+		
+				axis_opts.orientation = axis_opts.orientation || (dir === "x"? "bottom" : "left");
+
+				// if "rules" is true, this will be overridden
+				axis_opts.tickLength = axis_opts.hasOwnProperty("tickLength")? axis_opts.tickLength : 10;
+
+
+				// BUILD THE AXIS
+
+				// currently supported times are time, ordinal, log, or linear (default)
+				switch(axis_opts.type.toLowerCase()) {
+					case "time": scale = d3.scaleTime(); break;
+					case "ordinal": scale = d3.scaleOrdinal(); break;
+					case "log": scale = d3.scaleLog(); break;
+					case "linear": scale = d3.scaleLinear(); break;
+					default: scale = d3.scaleLinear(); break;
+				}
+
+				// input range
+				if (axis_opts.type === "ordinal") {
+					scale.rangeRoundBands(axis_opts.range, .5).domain(axis_opts.domain);
 				} else {
-					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0], .5).domain(opts.domain);
-					//scale.rangeRoundBands(dir === "x" ? [0, width - margin.right - margin.left], .5);
+					scale.range(axis_opts.range).domain(axis_opts.domain);
 				}
-			} else {
-				if (opts.range) {
-					scale.range(opts.range).domain(opts.domain);
-				} else {					
-					scale.range(dir === "x" ? [0, width] : [height, 0]).domain(opts.domain);
-				}
-			}
+					
 				
-			// the d3 object representing the axis
-			var ax = d3.svg.axis().scale(scale);
-
-			// the physical SVG object representing the axis
-			var axis_g = axes_layer.append("g").attr("class", dir + " axis");
-
-			if (opts.tick_format) {
-				ax.tickFormat(opts.tick_format);
-			}
-
-			if (opts.id) {
-				axis_g.attr("id", opts.id);	
-			}
-
-			opts.translation = [0, 0];
-
-			if (dir === "x") {
-				opts.orientation = opts.orientation || "bottom";
-
-				opts.translate = function() {
-					axis_g.attr("transform", "translate(0," + height + ")");
-				}
-
-				ax.tickSize(0, 0);
-
-				if (opts.label) {
-					var label = axis_g.append("text")
-					    .attr("x", width / 2)
-					    .attr("y", opts.label_offset ? opts.label_offset : (opts.orientation === "top" ? -30 : 30))
-					    .style("text-anchor", "middle")
-					    .classed("axis_label", true)
-					    .html(opts.label);
-				}
-			} else {
-				opts.orientation = opts.orientation || "left";
-
-				if (!opts.intersection) {
-					opts.intersection = function() {
-						return opts.orientation === "left" ? 0 : width;
+				if (dir == "x") {
+					if (axis_opts.orientation == "top") {
+						ax = d3.axisTop().scale(scale);
+					} else {
+						ax = d3.axisBottom().scale(scale);
+					}
+				} else {
+					if (axis_opts.orientation == "right") {
+						ax = d3.axisRight().scale(scale);
+					} else {
+						ax = d3.axisLeft().scale(scale);
 					}
 				}
 
-				opts.translate = function() {
-					axis_g.attr("transform", "translate(" + opts.intersection() + ", 0)");
+				axis_g = axes_layer.append("g").attr("class", dir + " axis");
+
+				if (axis_opts.tick_format) {
+					ax.tickFormat(axis_opts.tick_format);
 				}
 
-				ax.tickSize(-width, 0);				
+				if (axis_opts.id) {
+					axis_g.attr("id", axis_opts.id);	
+				}
 
-				if (opts.label) {
+				if (axis_opts.label) {
+					if (dir === "x") {
+						var label = axis_g.append("text")
+						    .attr("x", width / 2)
+						    .attr("y", axis_opts.label_offset ? axis_opts.label_offset : 30)
+						    .style("text-anchor", "middle")
+						    .classed("axis_label", true)
+						    .html(axis_opts.label);
+					}
+				} else {
 					var label = axis_g.append("text")
-					    .attr("transform", "translate(0," + (opts.label_offset || height / 2) + ")rotate(-90)")
-					    .attr("x", 0)
-					    .attr("y", -30)
-					    //.attr("dy", ".71em")
-					    .style("text-anchor", "middle")
-					    .attr("class", "axis_label")
-					    .text(opts.label);
+						.attr("transform", "translate(0," + (axis_opts.label_offset || height / 2) + ")rotate(-90)")
+						.attr("x", 0)
+						.attr("y", -30)
+						.style("text-anchor", "middle")
+						.attr("class", "axis_label")
+						.text(axis_opts.label);
 				}
+
+				axis_g.call(ax);
 			}
 
-			//console.log(axis_g, opts.translate);
-
-			opts.translate();
-
-			ax.orient(opts.orientation);
-
-			axis_g.call(ax);
-
-			var update = function(dur) {
+			// invoke this function any time you manually change an axis property, like tickFormat
+			var update_axis = function(dur) {
 				dur ? axis_g.transition().duration(dur).call(ax) : axis_g.call(ax);
 			};
 
-			var resize_axis = function (w, h, z) {
-				if (opts.type === "ordinal") {
-					scale.rangeRoundBands(dir === "x" ? [0, width] : [height, 0], .5).domain(opts.domain);
+
+			// this is invoked on load and any time the graph is modified or resized. See "Philosophy" section of the README
+			var draw_axis = function (w, h, z) {
+				axis_opts.range = dir === "x" ? [0, w] : [h, 0];
+
+				if (axis_opts.type === "ordinal") {
+					scale.rangeRoundBands(axis_opts.range, .5).domain(axis_opts.domain);
 				} else {
-					scale.range(dir === "x" ? [0, width] : [height, 0]);
+					scale.range(axis_opts.range).domain(axis_opts.domain);
 				}
 
-				opts.translate();
-				update();		
+				if (dir == "x" && axis_opts.orientation == "bottom") {
+					axis_g.attr("transform", "translate(0," + h + ")");
+				} else if (dir == "y" && axis_opts.orientation == "right") {
+					axis_g.attr("transform", "translate(" + w + ",0)");
+				}
 
-				if (opts.resize) {
-					opts.resize(scale, axis_g, width, height, z);
-				}					
+				if (dir == "x") {
+					if (axis_opts.rules) {
+						ax.tickSize(-height, 0);
+					} else {
+						ax.tickSize(-axis_opts.tickLength, 0);
+					}
+				} else {
+					if (axis_opts.rules) {
+						ax.tickSize(-width, 0);
+					} else {
+						ax.tickSize(-axis_opts.tickLength, 0);
+					}					
+				}
+
+				// optional resize function passed to axis options
+				if (axis_opts.resize) {
+					axis_opts.resize(scale, axis_g, width, height, z);
+				}
+
+				update_axis();
 			}
+			
+			build_axis();
+
+			// this is invoke onload and any time the chart is resized
+			draw_axis(width, height, 1);
 
 			// we'll return this object (and store it in the chart object)
 			var obj = {
 				domain: scale.domain,
 				scale: scale,
 				axis: ax,
-				update: update,
-				resize: resize_axis,
-				label: label
+				update: update_axis,
+				redraw: draw_axis
 			};
 
 			axes.push(obj);
@@ -188,15 +221,15 @@
 		}
 
 		function resize_chart() {
-			var w = parseInt(container.style('width'), 10) - margin.right - margin.left,
-				h = parseInt(container.style('height'), 10) - margin.top - margin.bottom,
+			var w = parseInt(svg.style('width'), 10) - margin.right - margin.left,
+				h = parseInt(svg.style('height'), 10) - margin.top - margin.bottom,
 				z = w / original_width;
 
 			chart.width = width = w;
 			chart.height = height = h;
 
 			axes.forEach(function(obj) {
-				obj.resize(w, h, z);
+				obj.redraw(w, h, z);
 			});
 
 			if (opts.resize) {
@@ -213,7 +246,7 @@
 			chart.height = height = h;
 
 			axes.forEach(function(axis) {
-				axis.resize(width, height);
+				axis.redraw(width, height);
 			});	
 		}
 
