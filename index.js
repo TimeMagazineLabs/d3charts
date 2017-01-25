@@ -139,11 +139,19 @@
 				if (axis_opts.label) {
 					if (dir === "x") {
 						var label = axis_g.append("text")
-						    .attr("x", width / 2)
-						    .attr("y", axis_opts.label_offset ? axis_opts.label_offset : 30)
-						    .style("text-anchor", "middle")
-						    .classed("axis_label", true)
-						    .html(axis_opts.label);
+							.attr("x", width / 2)
+							.attr("y", axis_opts.label_offset ? axis_opts.label_offset : 30)
+							.style("text-anchor", "middle")
+							.classed("axis_label", true)
+							.html(axis_opts.label);
+					} else {
+						var label = axis_g.append("text")
+							.attr("transform", function(d){
+								return  axis_opts.label_offset ? "translate("+ axis_opts.label_offset +","+ height/2 +")rotate(-90)" : "translate("+ -30 +","+ height/2 +")rotate(-90)";
+							})
+							.style("text-anchor", "middle")
+							.classed("axis_label", true)
+							.html(axis_opts.label);
 					}
 				} else {
 					var label = axis_g.append("text")
