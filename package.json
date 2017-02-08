@@ -1,6 +1,6 @@
 {
   "name": "d3charts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Wrapper for D3 charts, now d3.v4 compliant",
   "main": "index.js",
   "repository": {
