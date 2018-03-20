@@ -1,27 +1,40 @@
 {
   "name": "d3charts",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Wrapper for D3 charts, now d3.v4 compliant",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/TimeMagazine/d3charts.git"
   },
+  "scripts": {
+    "build": "./node_modules/.bin/webpack --config webpack/development.config.js --mode development",
+    "minify": "./node_modules/.bin/webpack --config webpack/production.config.js --mode production"
+  },
   "dependencies": {
-    "browserify": "^14.1.0",
-    "d3": "^4.7.3",
-    "elastic-svg": "^0.0.6",
-    "node-lessify": "^0.1.4"
+    "d3": "^4.13.0",
+    "elastic-svg": "^0.0.6"
+  },
+  "devDependencies": {
+    "autoprefixer": "^8.1.0",
+    "babel-core": "6.26.0",
+    "babel-loader": "7.1.4",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "node-sass": "4.7.2",
+    "postcss-loader": "^2.1.1",
+    "sass-loader": "6.0.7",
+    "style-loader": "0.20.3",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.12",
+    "webpack-merge": "^4.1.2"
   },
   "author": {
     "name": "Chris Wilson",
     "email": "wilson@mechanicalscribe.com",
     "url": "http://mechanicalscribe.com"
-  },
-  "browserify": {
-    "transform": [
-      "node-lessify"
-    ]
-  },
-  "scripts": {}
+  }
 }

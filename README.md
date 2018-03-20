@@ -1,8 +1,8 @@
 D3 Chart Helper
 ========
-v0.0.9
+v0.1.0
 
-Convenience functions for spinning up D3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
+Convenience functions for spinning up d3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
 
 # Demo
 
@@ -73,6 +73,7 @@ The `d3charts` function creates a new blank chart without any axes or anything e
 | height  |height of chart|width * 0.618|
 
 ## Change log
++ *v0.1.0*: Switched to webpack for build
 + *v0.0.9*: Updated dependencies
 + *v0.0.8*: Added y-axis label
 + *v0.0.7*: Added demos
