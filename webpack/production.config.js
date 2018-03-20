@@ -4,7 +4,6 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const base = require('./base.config');
 
 module.exports = merge(base, {
-	entry: './d3charts.js',
 	output: {
 		path: __dirname + '/../dist',
 		library: "d3charts",

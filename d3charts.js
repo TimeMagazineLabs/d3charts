@@ -1,4 +1,4 @@
-const d3 = Object.assign({}, require("d3-selection"), require("d3-scale"), require("d3-axis"));
+const d3 = require("d3");
 const base = require("elastic-svg");
 
 require("./styles.scss");
@@ -280,7 +280,8 @@ var d3charts = function(selector, opts) {
 		changeAspect: changeAspect,
 		changeHeight: changeHeight
 	};
+
 	return chart;
 }
 
-export { d3charts }
+module.exports = d3charts;
