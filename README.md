@@ -75,6 +75,7 @@ The `d3charts` function creates a new blank chart without any axes or anything e
 | height  |height of chart|width * 0.618|
 
 ## Change log
++ *v0.1.2*: Added `setDomain` for resetting the domain after construction
 + *v0.1.2*: Updated dependencies
 + *v0.1.1*: Updated dependencies
 + *v0.1.0*: Switched to webpack for build

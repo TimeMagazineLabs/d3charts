@@ -17,7 +17,6 @@
 	<div id="bar_chart"></div>
 		
 	<!-- load the d3.js library -->    	
-	<script src="http://d3js.org/d3.v4.min.js"></script>
 	<script src="../dist/d3charts.min.js"></script>
 	<script> 
 // http://harrypotter.answers.wikia.com/wiki/Top_200_most_named_harry_potter_characters_s
@@ -80,6 +79,10 @@ function update_chart() {
 }
 
 update_chart();
+
+y.setDomain([0, 25000]);
+
+y.update(4000);
 
 	</script>
 	</body>

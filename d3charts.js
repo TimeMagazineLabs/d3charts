@@ -226,6 +226,10 @@ var d3charts = function(selector, opts) {
 		var obj = {
 			dir: dir,
 			domain: scale.domain,
+			setDomain: function(new_domain) {
+				axis_opts.domain = new_domain;
+				scale.range(axis_opts.range).domain(axis_opts.domain);
+			},			
 			scale: scale,
 			axis: ax,
 			update: update_axis,
