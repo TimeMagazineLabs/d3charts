@@ -152,14 +152,6 @@ var d3charts = function(selector, opts) {
 						.classed("axis_label", true)
 						.html(axis_opts.label);
 				}
-			} else {
-				var label = axis_g.append("text")
-					.attr("transform", "translate(0," + (axis_opts.label_offset || height / 2) + ")rotate(-90)")
-					.attr("x", 0)
-					.attr("y", -30)
-					.style("text-anchor", "middle")
-					.attr("class", "axis_label")
-					.text(axis_opts.label);
 			}
 
 			axis_g.call(ax);
@@ -168,6 +160,21 @@ var d3charts = function(selector, opts) {
 		// invoke this function any time you manually change an axis property, like tickFormat
 		var update_axis = function(dur) {
 			dur ? axis_g.transition().duration(dur).call(ax) : axis_g.call(ax);
+
+			// reposition labels
+			if (axis_opts.label) {
+				if (dir === "x") {
+					axis_g.select(".axis_label")
+						.attr("x", width / 2)
+						.attr("y", axis_opts.label_offset ? axis_opts.label_offset : 30);
+				} else {
+					axis_g.select(".axis_label")
+						.attr("transform", function(d){
+							return  axis_opts.label_offset ? "translate("+ axis_opts.label_offset +","+ height/2 +")rotate(-90)" : "translate("+ -30 +","+ height/2 +")rotate(-90)";
+						});
+				}
+
+			}
 		};
 
 
