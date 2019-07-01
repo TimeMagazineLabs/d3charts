@@ -1,9 +1,9 @@
-const d3 = require("d3");
-const base = require("elastic-svg");
+import * as d3 from 'd3';
+import * as elasticSVG from '../elastic-svg';
 
-require("./styles.scss");
+require("./styles.css");
 
-var d3charts = function(selector, opts) {
+let d3charts = function(selector, opts) {
 	d3.select(selector).classed("d3chart", true);
 
 	// add the title as a DOM element rather than messing with <text>
@@ -20,7 +20,7 @@ var d3charts = function(selector, opts) {
 	// SETUP		
 	var margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
 
-	var b = base(selector, opts),
+	var b = elasticSVG(selector, opts),
 		svg = d3.select(b.svg);
 
 	var axes = {};
@@ -240,7 +240,7 @@ var d3charts = function(selector, opts) {
 			scale: scale,
 			axis: ax,
 			update: update_axis,
-			redraw: draw_axis
+			redraw: draw_axis,
 		};
 
 		axes[dir] = obj;
@@ -259,7 +259,7 @@ var d3charts = function(selector, opts) {
 			axes[dir].redraw(w, h, z);
 		});
 
-		if (opts.resize) {
+		if (opts.resize && typeof opts.resize == 'function') {
 			opts.resize(w, h, z);
 		}
 	}
@@ -289,10 +289,11 @@ var d3charts = function(selector, opts) {
 		resize: resize_chart,
 		addAxis: axis,
 		changeAspect: changeAspect,
-		changeHeight: changeHeight
+		changeHeight: changeHeight,
+		base: b
 	};
 
 	return chart;
 }
 
-module.exports = d3charts;
+export { d3charts };

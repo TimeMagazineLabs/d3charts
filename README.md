@@ -1,6 +1,6 @@
 D3 Chart Helper
 ========
-v0.1.2
+v0.1.5
 
 Convenience functions for spinning up d3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
 
@@ -75,6 +75,7 @@ The `d3charts` function creates a new blank chart without any axes or anything e
 | height  |height of chart|width * 0.618|
 
 ## Change log
++ *v0.1.5*: Fires resize of `elastic-svg` after load
 + *v0.1.2*: Added `setDomain` for resetting the domain after construction
 + *v0.1.2*: Updated dependencies
 + *v0.1.1*: Updated dependencies

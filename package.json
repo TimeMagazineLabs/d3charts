@@ -1,36 +1,19 @@
 {
   "name": "d3charts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Wrapper for D3 charts, now d3.v4 compliant",
-  "main": "d3charts.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/TimeMagazine/d3charts.git"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack --config webpack/development.config.js --mode development",
-    "minify": "./node_modules/.bin/webpack --config webpack/production.config.js --mode production"
+    "build": "./node_modules/.bin/webpack --config webpack/webpack.dev.js --mode development",
+    "minify": "./node_modules/.bin/webpack --config webpack/webpack.prod.js --mode production"
   },
   "dependencies": {
-    "d3": "^5.4.0",
+    "d3": "^5.9.7",
     "elastic-svg": "^0.0.6"
-  },
-  "devDependencies": {
-    "autoprefixer": "^9.1.5",
-    "babel-core": "6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "css-loader": "^1.0.0",
-    "file-loader": "^2.0.0",
-    "node-sass": "4.9.3",
-    "postcss-loader": "^3.0.0",
-    "sass-loader": "7.1.0",
-    "style-loader": "0.23.0",
-    "url-loader": "^1.0.1",
-    "webpack": "^4.1.1",
-    "webpack-cli": "^3.1.2",
-    "webpack-merge": "^4.1.2"
   },
   "author": {
     "name": "Chris Wilson",
