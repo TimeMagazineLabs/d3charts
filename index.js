@@ -1,9 +1,9 @@
 import * as d3 from 'd3';
-import * as elasticSVG from '../elastic-svg';
+import elasticSVG from 'elastic-svg';
 
-require("./styles.css");
+import "./styles.scss";
 
-let d3charts = function(selector, opts) {
+export default function d3charts(selector, opts) {
 	d3.select(selector).classed("d3chart", true);
 
 	// add the title as a DOM element rather than messing with <text>
@@ -98,7 +98,7 @@ let d3charts = function(selector, opts) {
 			switch(axis_opts.type.toLowerCase()) {
 				case "time": scale = d3.scaleTime(); break;
 				case "ordinal": scale = d3.scaleBand().padding(0.1); break;
-				case "log": scale = d3.scaleLog(); break;
+				case "log": scale = d3.scaleLog(axis_opts.log_base || 2); break;
 				case "linear": scale = d3.scaleLinear(); break;
 				default: scale = d3.scaleLinear(); break;
 			}
@@ -109,8 +109,7 @@ let d3charts = function(selector, opts) {
 			} else {
 				scale.range(axis_opts.range).domain(axis_opts.domain);
 			}
-				
-			
+
 			if (dir == "x") {
 				if (axis_opts.orientation == "top") {
 					ax = d3.axisTop().scale(scale);
@@ -284,7 +283,7 @@ let d3charts = function(selector, opts) {
 		width: width,
 		setResize: function(rf) {
 			opts.resize = rf;
-			rf();
+			resize_chart();
 		},
 		resize: resize_chart,
 		addAxis: axis,
@@ -295,5 +294,3 @@ let d3charts = function(selector, opts) {
 
 	return chart;
 }
-
-export { d3charts };

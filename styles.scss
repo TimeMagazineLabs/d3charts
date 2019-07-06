@@ -1,0 +1,27 @@
+.d3chart {
+	background-color: #EEE;
+
+	.axis path, .axis line {
+	    fill: none;
+	    stroke: white;
+	    stroke-width: 1px;
+	    shape-rendering: crispEdges;
+	}
+
+	.axis text {
+	    font-size: 13px;
+		font-family: Helvetica, Arial, sans-serif;
+	}
+
+	.axis .domain {
+		stroke-width: 2px;
+	}
+
+	.chart_title {
+		padding: 15px 0 5px 0;
+	}
+
+	.axis_label {
+		fill: black;
+	}	
+}

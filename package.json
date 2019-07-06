@@ -13,11 +13,14 @@
   },
   "dependencies": {
     "d3": "^5.9.7",
-    "elastic-svg": "^0.0.6"
+    "elastic-svg": "^0.0.9"
   },
   "author": {
     "name": "Chris Wilson",
     "email": "wilson@mechanicalscribe.com",
     "url": "http://mechanicalscribe.com"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10"
   }
 }
