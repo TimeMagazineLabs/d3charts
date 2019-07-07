@@ -1,7 +1,7 @@
 {
   "name": "d3charts",
-  "version": "0.1.5",
-  "description": "Wrapper for D3 charts, now d3.v4 compliant",
+  "version": "0.1.6",
+  "description": "Wrapper for D3 charts, now d3.v5 compliant",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -12,15 +12,15 @@
     "minify": "./node_modules/.bin/webpack --config webpack/webpack.prod.js --mode production"
   },
   "dependencies": {
-    "d3": "^5.9.7",
+    "d3-axis": "^1.0.12",
+    "d3-scale": "^3.0.0",
+    "d3-selection": "^1.4.0",
+    "d3-transition": "^1.2.0",
     "elastic-svg": "^0.0.9"
   },
   "author": {
     "name": "Chris Wilson",
     "email": "wilson@mechanicalscribe.com",
     "url": "http://mechanicalscribe.com"
-  },
-  "devDependencies": {
-    "cssnano": "^4.1.10"
   }
 }

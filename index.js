@@ -1,14 +1,17 @@
-import * as d3 from 'd3';
-import elasticSVG from 'elastic-svg';
+import { select } from 'd3-selection';
+import { transition } from 'd3-transition';
+import { scaleLinear, scaleTime, scaleLog, scaleBand } from 'd3-scale'; 
+import { axisLeft, axisRight, axisBottom, axisTop } from 'd3-axis'; 
 
+import elasticSVG from 'elastic-svg';
 import "./styles.scss";
 
 export default function d3charts(selector, opts) {
-	d3.select(selector).classed("d3chart", true);
+	select(selector).classed("d3chart", true);
 
 	// add the title as a DOM element rather than messing with <text>
 	if (opts.title) {
-		d3.select(selector)
+		select(selector)
 			.append("div")
 		    .style("text-align", "center")
 		    .classed("chart_title", true)
@@ -21,7 +24,7 @@ export default function d3charts(selector, opts) {
 	var margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
 
 	var b = elasticSVG(selector, opts),
-		svg = d3.select(b.svg);
+		svg = select(b.svg);
 
 	var axes = {};
 
@@ -40,10 +43,8 @@ export default function d3charts(selector, opts) {
 		.classed("data", true)
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
 	// any function that is passed to opts.resize will invoke in the following generic resize function
 	opts.onResize = resize_chart;
-
 
 	// AXES
 
@@ -59,7 +60,7 @@ export default function d3charts(selector, opts) {
 			returnl
 		}
 
-		var scale, 	// the typical d3 scale object, eg. d3.scaleTime()
+		var scale, 	// the typical d3 scale object, eg. scaleTime()
 			ax, 	// the d3 object representing the axis
 			axis_g; // the physical SVG object representing the axis
 
@@ -96,11 +97,11 @@ export default function d3charts(selector, opts) {
 
 			// currently supported times are time, ordinal, log, or linear (default)
 			switch(axis_opts.type.toLowerCase()) {
-				case "time": scale = d3.scaleTime(); break;
-				case "ordinal": scale = d3.scaleBand().padding(0.1); break;
-				case "log": scale = d3.scaleLog(axis_opts.log_base || 2); break;
-				case "linear": scale = d3.scaleLinear(); break;
-				default: scale = d3.scaleLinear(); break;
+				case "time": scale = scaleTime(); break;
+				case "ordinal": scale = scaleBand().padding(0.1); break;
+				case "log": scale = scaleLog(axis_opts.log_base || 2); break;
+				case "linear": scale = scaleLinear(); break;
+				default: scale = scaleLinear(); break;
 			}
 
 			// input range
@@ -112,15 +113,15 @@ export default function d3charts(selector, opts) {
 
 			if (dir == "x") {
 				if (axis_opts.orientation == "top") {
-					ax = d3.axisTop().scale(scale);
+					ax = axisTop().scale(scale);
 				} else {
-					ax = d3.axisBottom().scale(scale);
+					ax = axisBottom().scale(scale);
 				}
 			} else {
 				if (axis_opts.orientation == "right") {
-					ax = d3.axisRight().scale(scale);
+					ax = axisRight().scale(scale);
 				} else {
-					ax = d3.axisLeft().scale(scale);
+					ax = axisLeft().scale(scale);
 				}
 			}
 
