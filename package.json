@@ -1,6 +1,6 @@
 {
   "name": "d3charts",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Wrapper for D3 charts, now d3.v5 compliant",
   "main": "index.js",
   "repository": {
@@ -18,9 +18,14 @@
     "d3-transition": "^1.2.0",
     "elastic-svg": "^0.0.9"
   },
-  "author": {
-    "name": "Chris Wilson",
-    "email": "wilson@mechanicalscribe.com",
-    "url": "http://mechanicalscribe.com"
-  }
+  "keywords": [
+    "SVG",
+    "wrapper"
+  ],
+  "author": "Chris Wilson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TimeMagazine/d3charts/issues"
+  },
+  "homepage": "https://github.com/TimeMagazine/d3charts"
 }
