@@ -20,31 +20,32 @@ export default function d3charts(selector, opts) {
 
 	opts = opts || {};
 
-	// SETUP		
-	var margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
+	if (opts.hasOwnProperty('onResize')) {
+		console.log("Don't pass `onResize` to d3charts because it overwrites the elasticSVG resize function. Please use `onChartUpdate`");
+		return;
+	}
 
-	var b = elasticSVG(selector, opts),
-		svg = select(b.svg);
+	// SETUP
+	let margin = opts.margin || { top: 0, right: 30, bottom: 50, left: 50 };
 
-	var axes = {};
+	let b = elasticSVG(selector, opts);
+	let svg = select(b.svg);
+
+	let axes = {};
 
 	// width and height are the dimensions of the graph NOT including the margins 
-	var width =  b.width - margin.left - margin.right,
-		height = b.height - margin.top - margin.bottom,
-		original_width = width; // the starting width, used for scaling
+	let width =  b.width - margin.left - margin.right;
+	let height = b.height - margin.top - margin.bottom;
+	let original_width = width; // the starting width, used for scaling
 
 	// layer for axes and anything else we want behind the dataviz
-	var axes_layer = svg.append("g")
-		.classed("axes", true)
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	let axes_layer = svg.append("g").classed("axes", true).attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	// layer for dataviz: bars, lines, dots, etc.
-	var data_layer = svg.append("g")
-		.classed("data", true)
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	let data_layer = svg.append("g").classed("data", true).attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	// any function that is passed to opts.resize will invoke in the following generic resize function
-	opts.onResize = resize_chart;
+	// any function that is passed to opts.onResize will invoke in the following generic onResize function
+	// opts.genericResize = resize_chart;
 
 	// AXES
 
@@ -54,7 +55,7 @@ export default function d3charts(selector, opts) {
 	@opts: options for the axis: type, domain (or min and max), orientation, ticklength, id, rules (T/F for chart-wide ticks)
 	*/
 
-	var axis = function(dir, axis_opts) {
+	let axis = function(dir, axis_opts) {
 		if (!typeof dir === "string" || dir.toLowerCase() != "x" && dir.toLowerCase() != "y") {
 			console.log("the d3charts axis() function must start with a string, either 'x' or 'y'");
 			returnl
@@ -137,16 +138,17 @@ export default function d3charts(selector, opts) {
 
 			if (axis_opts.label) {
 				if (dir === "x") {
+					axis_opts.label_offset = axis_opts.hasOwnProperty('label_offset') ? axis_opts.label_offset : (axis_opts.orientation === "bottom" ? 30 : -20);
 					var label = axis_g.append("text")
 						.attr("x", width / 2)
-						.attr("y", axis_opts.label_offset ? axis_opts.label_offset : 30)
+						.attr("y", axis_opts.label_offset)
 						.style("text-anchor", "middle")
 						.classed("axis_label", true)
 						.html(axis_opts.label);
 				} else {
 					var label = axis_g.append("text")
 						.attr("transform", function(d){
-							return  axis_opts.label_offset ? "translate("+ axis_opts.label_offset +","+ height/2 +")rotate(-90)" : "translate("+ -30 +","+ height/2 +")rotate(-90)";
+							return axis_opts.label_offset ? "translate("+ axis_opts.label_offset +","+ height/2 +")rotate(-90)" : "translate("+ -30 +","+ height/2 +")rotate(-90)";
 						})
 						.style("text-anchor", "middle")
 						.classed("axis_label", true)
@@ -154,11 +156,14 @@ export default function d3charts(selector, opts) {
 				}
 			}
 
+			console.log(axis_opts);
+
+
 			axis_g.call(ax);
 		}
 
 		// invoke this function any time you manually change an axis property, like tickFormat
-		var update_axis = function(dur) {
+		let update_axis = function(dur) {
 			dur ? axis_g.transition().duration(dur).call(ax) : axis_g.call(ax);
 
 			// reposition labels
@@ -177,9 +182,8 @@ export default function d3charts(selector, opts) {
 			}
 		};
 
-
 		// this is invoked on load and any time the graph is modified or resized. See "Philosophy" section of the README
-		var draw_axis = function (w, h, z) {
+		let draw_axis = function (w, h, z) {
 			axis_opts.range = dir === "x" ? [0, w] : [h, 0];
 
 			if (axis_opts.type === "ordinal2") {
@@ -217,8 +221,8 @@ export default function d3charts(selector, opts) {
 			}
 
 			// optional resize function passed to axis options
-			if (axis_opts.resize) {
-				axis_opts.resize(scale, axis_g, width, height, z);
+			if (axis_opts.onResize) {
+				axis_opts.onResize(scale, axis_g, width, height, z);
 			}
 
 			update_axis();
@@ -230,7 +234,7 @@ export default function d3charts(selector, opts) {
 		draw_axis(width, height, 1);
 
 		// we'll return this object (and store it in the chart object)
-		var obj = {
+		let obj = {
 			dir: dir,
 			domain: scale.domain,
 			setDomain: function(new_domain) {
@@ -259,10 +263,12 @@ export default function d3charts(selector, opts) {
 			axes[dir].redraw(w, h, z);
 		});
 
-		if (opts.resize && typeof opts.resize == 'function') {
-			opts.resize(w, h, z);
+		if (opts.onChartResize && typeof opts.onChartResize == 'function') {
+			opts.onChartResize(w, h, z);
 		}
 	}
+
+	opts.onResize = resize_chart;
 
 	function changeAspect(aspect) {
 		b.changeAspect(aspect);			
@@ -274,21 +280,32 @@ export default function d3charts(selector, opts) {
 
 		axes.forEach(function(axis) {
 			axis.redraw(width, height);
-		});	
+		});
+	}
+
+	function changeWidth(w) {
+		b.changeWidth(w + margin.left + margin.right);
+		chart.width = width = w;
+
+		axes.forEach(function(axis) {
+			axis.redraw(width, height);
+		});
 	}
 
 	var chart = {
+		options: opts,
 		axes_layer: axes_layer,
 		data_layer: data_layer,
 		height: height,
 		width: width,
-		setResize: function(rf) {
-			opts.resize = rf;
+		setResize: function(f) {
+			opts.onChartResize = f;
 			resize_chart();
 		},
 		resize: resize_chart,
 		addAxis: axis,
 		changeAspect: changeAspect,
+		// changeWidth: changeWidth,
 		changeHeight: changeHeight,
 		base: b
 	};

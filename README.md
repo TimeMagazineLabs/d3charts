@@ -16,7 +16,7 @@ Assuming you have a `<div>` in the body with the id "bar_chart":
 	var chart = d3charts("#bar_chart", {
 	    margin: { top: 35, right: 20, bottom: 20, left: 35 },
 	    aspect: 0.75,
-	    resize: update_chart,
+	    onResize: update_chart,
 	    title: "Most-mentioned Characters in <em>Harry Potter</em>"
 	});
 
