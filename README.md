@@ -1,6 +1,6 @@
 D3 Chart Helper
 ========
-v0.1.6
+v0.1.8
 
 Convenience functions for spinning up d3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
 
@@ -16,7 +16,7 @@ Assuming you have a `<div>` in the body with the id "bar_chart":
 	var chart = d3charts("#bar_chart", {
 	    margin: { top: 35, right: 20, bottom: 20, left: 35 },
 	    aspect: 0.75,
-	    onResize: update_chart,
+	    onChartResize: update_chart,
 	    title: "Most-mentioned Characters in <em>Harry Potter</em>"
 	});
 
@@ -75,6 +75,8 @@ The `d3charts` function creates a new blank chart without any axes or anything e
 | height  |height of chart|width * 0.618|
 
 ## Change log
++ *v0.1.8*: Updated dependencies and removed a rouge console log
++ *v0.1.7*: Added manual call to resize with `myChart.resize()`
 + *v0.1.6*: Cleaned up imports and massively resized size of distributed builds
 + *v0.1.5*: Fires resize of `elastic-svg` after load
 + *v0.1.2*: Added `setDomain` for resetting the domain after construction

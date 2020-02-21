@@ -21,7 +21,7 @@ export default function d3charts(selector, opts) {
 	opts = opts || {};
 
 	if (opts.hasOwnProperty('onResize')) {
-		console.log("Don't pass `onResize` to d3charts because it overwrites the elasticSVG resize function. Please use `onChartUpdate`");
+		console.log("Don't pass `onResize` to d3charts because it overwrites the elasticSVG resize function. Please use `onChartResize`");
 		return;
 	}
 
@@ -155,10 +155,6 @@ export default function d3charts(selector, opts) {
 						.html(axis_opts.label);
 				}
 			}
-
-			console.log(axis_opts);
-
-
 			axis_g.call(ax);
 		}
 
