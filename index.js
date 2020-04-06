@@ -99,7 +99,7 @@ export default function d3charts(selector, opts) {
 			// currently supported times are time, ordinal, log, or linear (default)
 			switch(axis_opts.type.toLowerCase()) {
 				case "time": scale = scaleTime(); break;
-				case "ordinal": scale = scaleBand().padding(0.1); break;
+				case "ordinal": scale = scaleBand().padding(0.2); break;
 				case "log": scale = scaleLog(axis_opts.log_base || 2); break;
 				case "linear": scale = scaleLinear(); break;
 				default: scale = scaleLinear(); break;
@@ -109,7 +109,7 @@ export default function d3charts(selector, opts) {
 			if (axis_opts.type === "ordinal2") {
 				scale.rangeRoundBands(axis_opts.range, .5).domain(axis_opts.domain);
 			} else {
-				scale.range(axis_opts.range).domain(axis_opts.domain);
+				scale.rangeRound(axis_opts.range).domain(axis_opts.domain);
 			}
 
 			if (dir == "x") {
