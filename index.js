@@ -252,6 +252,10 @@ export default function d3charts(selector, opts) {
 			h = parseInt(svg.style('height'), 10) - margin.top - margin.bottom,
 			z = w / original_width;
 
+		if (!w || !h) {
+			return;
+		}
+
 		chart.width = width = w;
 		chart.height = height = h;
 
