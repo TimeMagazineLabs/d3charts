@@ -139,6 +139,7 @@ export default function d3charts(selector, opts) {
 			if (axis_opts.label) {
 				if (dir === "x") {
 					axis_opts.label_offset = axis_opts.hasOwnProperty('label_offset') ? axis_opts.label_offset : (axis_opts.orientation === "bottom" ? 30 : -20);
+					
 					var label = axis_g.append("text")
 						.attr("x", width / 2)
 						.attr("y", axis_opts.label_offset)
@@ -248,6 +249,8 @@ export default function d3charts(selector, opts) {
 	}
 
 	function resize_chart() {
+		// let bbox = svg.node().getBoundingClientRect();
+
 		var w = parseInt(svg.style('width'), 10) - margin.right - margin.left,
 			h = parseInt(svg.style('height'), 10) - margin.top - margin.bottom,
 			z = w / original_width;
