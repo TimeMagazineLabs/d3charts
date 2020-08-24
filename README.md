@@ -6,6 +6,11 @@ Convenience functions for spinning up d3-powered charts. Not an automatic charti
 
 By @wilson428 and @davejohn
 
+## Instalation
+
+	npm install d3charts
+	import { d3charts } from 'd3charts'
+
 # Demo
 
 Assuming you have a `<div>` in the body with the id "bar_chart":
