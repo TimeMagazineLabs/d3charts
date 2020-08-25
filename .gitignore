@@ -1,3 +1,6 @@
+.DS_store
+pnpm-lock.yaml
+
 lib-cov
 *.seed
 *.log

@@ -3,7 +3,7 @@ import { transition } from 'd3-transition';
 import { scaleLinear, scaleTime, scaleLog, scaleBand } from 'd3-scale'; 
 import { axisLeft, axisRight, axisBottom, axisTop } from 'd3-axis'; 
 
-import d3axis from '../d3axis';
+import d3axis from 'd3axis';
 
 import elasticSVG from 'elastic-svg';
 import "./chart.scss";
@@ -62,6 +62,11 @@ function d3charts(selector, opts) {
 		axis_opts.direction = dir;
 		axis_opts.margin = opts.margin;
 		axes[dir] = d3axis(b.svg, axis_opts);
+
+		// console.log(axes[dir].element.node());
+
+		axes_layer.node().appendChild(axes[dir].element.node());
+
 		return axes[dir];
 	}
 
