@@ -1,21 +1,23 @@
 {
   "name": "d3charts",
-  "version": "0.1.8",
+  "version": "0.1.91",
   "description": "Wrapper for D3 charts, now d3.v5 compliant",
-  "main": "index.js",
+  "main": "chart.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/TimeMagazineLabs/d3charts.git"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack --config webpack/webpack.dev.js --mode development",
-    "minify": "./node_modules/.bin/webpack --config webpack/webpack.prod.js --mode production"
+    "build": "bundle-module --entry=./chart.js --name=d3charts",
+    "minify": "bundle-module --entry=./chart.js --name=d3charts --min",
+    "test": "npm run build"
   },
   "dependencies": {
     "d3-axis": "^1.0.12",
     "d3-scale": "^3.2.1",
-    "d3-selection": "^1.4.1",
+    "d3-selection": "^1.4.2",
     "d3-transition": "^1.3.2",
+    "d3axis": "github:TimeMagazineLabs/d3axis",
     "elastic-svg": "^0.1.0"
   },
   "keywords": [

@@ -1,10 +1,13 @@
 D3 Chart Helper
 ========
-v0.1.8
+v0.1.91
 
 Convenience functions for spinning up d3-powered charts. Not an automatic charting tool, just a way for code-lovers to reduce tedium.
 
-By @wilson428 and @davejohn
+## Instalation
+
+	npm install TimeMagazineLabs/d3charts
+	import { d3charts } from 'd3charts'
 
 # Demo
 
@@ -75,6 +78,7 @@ The `d3charts` function creates a new blank chart without any axes or anything e
 | height  |height of chart|width * 0.618|
 
 ## Change log
++ *v0.1.91*: Move axis to `d3axis`
 + *v0.1.8*: Updated dependencies and removed a rouge console log
 + *v0.1.7*: Added manual call to resize with `myChart.resize()`
 + *v0.1.6*: Cleaned up imports and massively resized size of distributed builds
