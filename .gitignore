@@ -16,3 +16,4 @@ node_modules
 pnpm-lock.yaml
 
 .DS_Store
+pnpm-lock.yaml
